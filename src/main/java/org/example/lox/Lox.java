@@ -8,6 +8,15 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
 
+/**
+ * program        → statement* EOF ;
+ *
+ * statement      → exprStmt
+ *                | printStmt ;
+ *
+ * exprStmt       → expression ";" ;
+ * printStmt      → "print" expression ";" ;
+ */
 public class Lox {
     static boolean hadError = false;
     static boolean hadRuntimeError = false;
@@ -39,8 +48,8 @@ public class Lox {
     }
 
     private static void runPrompt() throws IOException {
-        InputStreamReader input = new InputStreamReader(System.in);
-        BufferedReader reader = new BufferedReader(input);
+        var input = new InputStreamReader(System.in);
+        var reader = new BufferedReader(input);
         System.out.println("***********************************");
         System.out.println("************** LOX ****************");
         System.out.println("***********************************");
@@ -58,7 +67,7 @@ public class Lox {
         List<Token> tokens = scanner.scanTokens();
 
         Parser parser = new Parser(tokens);
-        Expr expression = parser.parse();
+        var expression = parser.parse();
         // Stop if there was a syntax error.
         if (hadError) return;
         System.out.println(new AstPrinter().print(expression));

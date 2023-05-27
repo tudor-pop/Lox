@@ -1,8 +1,18 @@
 package org.example.lox;
 
-class AstPrinter implements Expr.Visitor<String> {
+import java.util.List;
+
+class AstPrinter implements Expr.Visitor<String>, Stmt.Visitor<String> {
     String print(Expr expr) {
         return expr.accept(this);
+    }
+
+    String print(List<Stmt> stmts) {
+        var res = "";
+        for (Stmt stmt : stmts) {
+            res += stmt.accept(this);
+        }
+        return res;
     }
 
     @Override
@@ -36,5 +46,15 @@ class AstPrinter implements Expr.Visitor<String> {
         }
         builder.append(")");
         return builder.toString();
+    }
+
+    @Override
+    public String visit(Stmt.Expression stmt) {
+        return "list " + stmt.expression.accept(this);
+    }
+
+    @Override
+    public String visit(Stmt.Print stmt) {
+        return "print "+stmt.expression.accept(this);
     }
 }

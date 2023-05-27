@@ -1,19 +1,25 @@
 package org.example.lox;
 
+import java.util.List;
+
 /*
  * In Lox, values are created by literals, computed by expressions, and stored in variables.
  * The user sees these as Lox objects, but they are implemented in the underlying language our interpreter is written in.
  * That means bridging the lands of Lox’s dynamic typing and Java’s static types.
  * */
-class Interpreter implements Expr.Visitor<Object> {
+class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
 
-    void interpret(Expr expression) {
+    void interpret(List<Stmt> stmts) {
         try {
-            Object value = evaluate(expression);
-            System.out.println(stringify(value));
+            for (Stmt stmt : stmts) {
+                execute(stmt);
+            }
         } catch (RuntimeError error) {
             Lox.runtimeError(error);
         }
+    }
+    private void execute(Stmt stmt) {
+        stmt.accept(this);
     }
 
     private String stringify(Object object) {
@@ -120,5 +126,18 @@ class Interpreter implements Expr.Visitor<Object> {
         if (a == null && b == null) return true;
         if (a == null) return false;
         return a.equals(b);
+    }
+
+    @Override
+    public Void visit(Stmt.Expression stmt) {
+        evaluate(stmt.expression);
+        return null;
+    }
+
+    @Override
+    public Void visit(Stmt.Print stmt) {
+        Object value = evaluate(stmt.expression);
+        System.out.println(stringify(value));
+        return null;
     }
 }

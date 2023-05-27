@@ -1,5 +1,7 @@
 package org.example.lox;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static org.example.lox.TokenType.*;
@@ -49,12 +51,34 @@ class Parser {
         this.tokens = tokens;
     }
 
-    Expr parse() {
+    List<Stmt> parse() {
+        List<Stmt> statements = new ArrayList<>();
         try {
-            return Expression();
+            while (!isAtEnd()) {
+                statements.add(Statement());
+            }
         } catch (ParseError error) {
-            return null;
+            return Collections.emptyList();
         }
+        return statements;
+    }
+
+    private Stmt Statement() {
+        if (match(PRINT)) return PrintStatement();
+
+        return ExpressionStatement();
+    }
+
+    private Stmt ExpressionStatement() {
+        var value = Expression();
+        consume(SEMICOLON, "Expect ';' after value.");
+        return new Stmt.Expression(value);
+    }
+
+    private Stmt PrintStatement() {
+        Expr value = Expression();
+        consume(SEMICOLON, "Expect ';' after value.");
+        return new Stmt.Print(value);
     }
 
     /*
